@@ -5,7 +5,7 @@ interface Options {
   routes: Router;
 }
 
-export class Server {
+export class ServerExpress {
   public readonly app = express();
   private readonly port: number;
   private readonly routes: Router;
