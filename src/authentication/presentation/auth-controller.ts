@@ -3,6 +3,8 @@ import { RegisterUserDto } from "../domain/dtos/register-user.dto";
 import { AuthRepository } from "../domain/repository/auth.repository";
 import { RegisterUser } from "../domain/use-cases/register-user.use-case";
 import { CustomError } from "../../shared/utils/custom.error";
+import { LoginUserDto } from "../domain/dtos/login-user.dto";
+import { LoginUser } from "../domain/use-cases/login-user.use-case";
 
 export class AuthController {
   constructor(private readonly authRepository: AuthRepository) {}
@@ -11,7 +13,13 @@ export class AuthController {
   //@route POST /api/auth/login
   //@access public
   loginUser = (req: Request, res: Response) => {
-    return res.status(200).json({ body: "Login Works!" });
+    const [error, loginUserDto] = LoginUserDto.login(req.body);
+    if (error) throw CustomError.badRequest(error);
+
+    new LoginUser(this.authRepository)
+      .exectue(loginUserDto!)
+      .then((data) => res.json(data))
+      .catch((error) => CustomError.handleError(error, res));
   };
 
   //@desc Register user
