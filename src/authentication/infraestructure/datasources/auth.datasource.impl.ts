@@ -1,3 +1,4 @@
+import { error } from "console";
 import { UserModel } from "../../../shared/data/mongodb/models/user.model";
 import { CustomError } from "../../../shared/utils/custom.error";
 import { AuthDatasource } from "../../domain/datasources/auth.datasource";
@@ -22,10 +23,11 @@ export class AuthDataSourceImplementation implements AuthDatasource {
   }
 
   async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {
-    const { name, email, password, lastname } = registerUserDto;
-    const emailExist = await UserModel.findOne({ email: email });
-    if (emailExist) throw CustomError.badRequest("Bad Credentials");
     try {
+      const { name, email, password, lastname } = registerUserDto;
+      const emailExist = await UserModel.findOne({ email: email });
+      if (emailExist) throw CustomError.badRequest("Bad Credentials");
+
       const user = await UserModel.create({
         name: name,
         lastname: lastname,

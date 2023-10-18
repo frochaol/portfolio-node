@@ -1,3 +1,4 @@
+import { CustomError } from "../../../shared/utils/custom.error";
 import { RegisterUserDto } from "../dtos/register-user.dto";
 import { UserEntity } from "../entities/user.entity";
 import { AuthRepository } from "../repository/auth.repository";

@@ -26,12 +26,19 @@ export class AuthController {
   //@route POST /api/auth/register
   //@access public
   registerUser = (req: Request, res: Response) => {
-    const [error, registerUserDto] = RegisterUserDto.create(req.body);
-    if (error) throw CustomError.badRequest(error);
+    try {
+      const [error, registerUserDto] = RegisterUserDto.create(req.body);
+      // Validation of request object
+      if (error) throw CustomError.badRequest(error);
 
-    new RegisterUser(this.authRepository)
-      .execute(registerUserDto!)
-      .then((data) => res.json(data))
-      .catch((error) => CustomError.handleError(error, res));
+      new RegisterUser(this.authRepository)
+        .execute(registerUserDto!)
+        .then((data) => res.json(data))
+        .catch((error) => {
+          throw CustomError.handleError(error, res);
+        });
+    } catch (error) {
+      throw CustomError.handleError(error, res);
+    }
   };
 }

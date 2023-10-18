@@ -1,4 +1,5 @@
 import express, { Router } from "express";
+import { CustomError } from "../utils/custom.error";
 
 interface Options {
   port?: number;
@@ -28,7 +29,7 @@ export class ServerExpress {
       try {
         console.log(`Server running at Port ${this.port}`);
       } catch (error) {
-        console.log(error);
+        CustomError.internalServerError("Unable to start express server");
       }
     });
   }

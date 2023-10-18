@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { CustomError } from "../../utils/custom.error";
 
 interface Options {
   dbUrl: string;
@@ -10,10 +11,8 @@ export class MongoDatabase {
     const { dbName, dbUrl } = options;
     try {
       await mongoose.connect(dbUrl, { dbName: dbName });
-      console.log("Mongo connected");
     } catch (error) {
-      console.log("Mongo connection error");
-      throw error;
+      throw CustomError.internalServerError();
     }
   }
 }

@@ -1,3 +1,4 @@
+import { CustomError } from "../../../shared/utils/custom.error";
 import { Validators } from "../../../shared/utils/validators.util";
 
 export class RegisterUserDto {
