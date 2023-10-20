@@ -23,8 +23,9 @@ export class AuthDataSourceImplementation implements AuthDatasource {
   }
 
   async register(registerUserDto: RegisterUserDto): Promise<UserEntity> {
+    const { name, email, password, lastname } = registerUserDto;
+
     try {
-      const { name, email, password, lastname } = registerUserDto;
       const emailExist = await UserModel.findOne({ email: email });
       if (emailExist) throw CustomError.badRequest("Bad Credentials");
 
@@ -37,6 +38,9 @@ export class AuthDataSourceImplementation implements AuthDatasource {
       await user.save();
       return UserMapper.userEntityFromObject(user);
     } catch (error) {
+      if (error instanceof CustomError) {
+        throw error;
+      }
       throw CustomError.internalServerError();
     }
   }

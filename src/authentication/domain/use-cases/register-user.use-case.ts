@@ -12,14 +12,22 @@ export class RegisterUser implements RegisterUseCase {
 
   async execute(registerUserDto: RegisterUserDto): Promise<UserEntity> {
     // Create user
-    const user = await this.authRepository.register(registerUserDto);
-
-    return {
-      id: user.id,
-      name: user.name,
-      lastname: user.lastname,
-      email: user.email,
-      password: user.password,
-    };
+    return await this.authRepository
+      .register(registerUserDto)
+      .then((user) => {
+        return {
+          id: user.id,
+          name: user.name,
+          lastname: user.lastname,
+          email: user.email,
+          password: user.password,
+        };
+      })
+      .catch((error) => {
+        if (error instanceof CustomError) {
+          throw error;
+        }
+        throw CustomError.internalServerError();
+      });
   }
 }
