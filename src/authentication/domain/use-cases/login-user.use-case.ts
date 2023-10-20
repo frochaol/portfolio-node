@@ -1,3 +1,4 @@
+import { CustomError } from "../../../shared/utils/custom.error";
 import { LoginUserDto } from "../dtos/login-user.dto";
 import { AuthRepository } from "../repository/auth.repository";
 
@@ -19,16 +20,26 @@ export class LoginUser implements LoginUserUseCase {
   constructor(private readonly authRepository: AuthRepository) {}
 
   async exectue(loginUserDto: LoginUserDto): Promise<UserInfo> {
-    const user = await this.authRepository.login(loginUserDto);
+    // Login User
 
-    return {
-      token: "",
-      user: {
-        id: user.id,
-        name: user.name,
-        lastname: user.lastname,
-        email: user.email,
-      },
-    };
+    return await this.authRepository
+      .login(loginUserDto)
+      .then((user) => {
+        return {
+          token: "",
+          user: {
+            id: user.id,
+            name: user.name,
+            lastname: user.lastname,
+            email: user.email,
+          },
+        };
+      })
+      .catch((error) => {
+        if (error instanceof CustomError) {
+          throw error;
+        }
+        throw CustomError.internalServerError();
+      });
   }
 }

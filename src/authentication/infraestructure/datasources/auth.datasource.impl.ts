@@ -10,14 +10,16 @@ import { UserMapper } from "../mappers/user.mapper";
 export class AuthDataSourceImplementation implements AuthDatasource {
   async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
     const { email, password } = loginUserDto;
-    const user = await UserModel.findOne({ email });
-
-    if (!user) throw CustomError.badRequest("Bad Credentials");
-    if (password != user.password)
-      throw CustomError.badRequest("Password is not valid");
     try {
+      const user = await UserModel.findOne({ email });
+      if (!user) throw CustomError.badRequest("Bad Credentials");
+      if (password != user.password)
+        throw CustomError.badRequest("Password is not valid");
       return UserMapper.userEntityFromObject(user);
     } catch (error) {
+      if (error instanceof CustomError) {
+        throw error;
+      }
       throw CustomError.internalServerError();
     }
   }

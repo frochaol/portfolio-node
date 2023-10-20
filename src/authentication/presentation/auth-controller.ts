@@ -13,13 +13,17 @@ export class AuthController {
   //@route POST /api/auth/login
   //@access public
   loginUser = (req: Request, res: Response) => {
-    const [error, loginUserDto] = LoginUserDto.login(req.body);
-    if (error) throw CustomError.badRequest(error);
+    try {
+      const [error, loginUserDto] = LoginUserDto.login(req.body);
+      if (error) throw CustomError.badRequest(error);
 
-    new LoginUser(this.authRepository)
-      .exectue(loginUserDto!)
-      .then((data) => res.json(data))
-      .catch((error) => CustomError.handleError(error, res));
+      new LoginUser(this.authRepository)
+        .exectue(loginUserDto!)
+        .then((data) => res.json(data))
+        .catch((error) => CustomError.handleError(error, res));
+    } catch (error) {
+      throw CustomError.handleError(error, res);
+    }
   };
 
   //@desc Register user

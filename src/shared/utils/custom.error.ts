@@ -34,4 +34,11 @@ export class CustomError extends Error {
     }
     return res.status(500).json({ error: "Internal Server Error" });
   }
+
+  static handleErrorWithoutResponse = (error: unknown) => {
+    if (error instanceof CustomError) {
+      throw error;
+    }
+    throw CustomError.internalServerError();
+  };
 }
