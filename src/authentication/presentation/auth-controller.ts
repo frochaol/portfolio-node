@@ -34,9 +34,7 @@ export class AuthController {
       new RegisterUser(this.authRepository)
         .execute(registerUserDto!)
         .then((data) => res.json(data))
-        .catch((error) => {
-          throw CustomError.handleError(error, res);
-        });
+        .catch((error) => CustomError.handleError(error, res));
     } catch (error) {
       throw CustomError.handleError(error, res);
     }
