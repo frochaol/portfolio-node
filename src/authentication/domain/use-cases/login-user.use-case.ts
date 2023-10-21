@@ -1,3 +1,5 @@
+import { envs } from "../../../shared/configurations/envs";
+import { JwtAdapter } from "../../../shared/configurations/jwt-adapter";
 import { CustomError } from "../../../shared/utils/custom.error";
 import { LoginUserDto } from "../dtos/login-user.dto";
 import { AuthRepository } from "../repository/auth.repository";
@@ -12,21 +14,28 @@ interface UserInfo {
   };
 }
 
+type SignToken = (payload: Object, duration?: string) => Promise<string | null>;
+
 interface LoginUserUseCase {
   exectue(loginUserDto: LoginUserDto): Promise<UserInfo>;
 }
 
 export class LoginUser implements LoginUserUseCase {
-  constructor(private readonly authRepository: AuthRepository) {}
+  constructor(
+    private readonly authRepository: AuthRepository,
+    private readonly signToken: SignToken = JwtAdapter.generateToken
+  ) {}
 
   async exectue(loginUserDto: LoginUserDto): Promise<UserInfo> {
-    // Login User
-
     return await this.authRepository
       .login(loginUserDto)
-      .then((user) => {
+      .then(async (user) => {
+        const token = await this.signToken({ id: user.id }, envs.JWT_TIME);
+        if (!token)
+          throw CustomError.internalServerError("Error generating token");
+
         return {
-          token: "",
+          token: token,
           user: {
             id: user.id,
             name: user.name,
