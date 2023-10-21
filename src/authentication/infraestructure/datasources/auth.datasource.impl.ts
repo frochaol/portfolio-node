@@ -10,10 +10,12 @@ import { BcryptAdapter } from "../../../shared/configurations/bcrypt";
 
 // Add a tpe to do not depend on another layer
 type HashFunction = (password: string) => string;
+type CompareFunction = (password: string, hashed: string) => boolean;
 
 export class AuthDataSourceImplementation implements AuthDatasource {
   constructor(
-    private readonly hasPassword: HashFunction = BcryptAdapter.hash
+    private readonly hasPassword: HashFunction = BcryptAdapter.hash,
+    private readonly comparePassword: CompareFunction = BcryptAdapter.compare
   ) {}
 
   async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
@@ -22,8 +24,10 @@ export class AuthDataSourceImplementation implements AuthDatasource {
     try {
       const user = await UserModel.findOne({ email });
       if (!user) throw CustomError.badRequest("Bad Credentials");
-      if (password != user.password)
-        throw CustomError.badRequest("Password is not valid");
+
+      const isMatching = this.comparePassword(password, user.password);
+      if (!isMatching) throw CustomError.badRequest("Password is not valid");
+
       return UserMapper.userEntityFromObject(user);
     } catch (error) {
       if (error instanceof CustomError) {
