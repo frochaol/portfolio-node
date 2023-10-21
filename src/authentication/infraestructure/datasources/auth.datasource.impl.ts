@@ -6,10 +6,19 @@ import { LoginUserDto } from "../../domain/dtos/login-user.dto";
 import { RegisterUserDto } from "../../domain/dtos/register-user.dto";
 import { UserEntity } from "../../domain/entities/user.entity";
 import { UserMapper } from "../mappers/user.mapper";
+import { BcryptAdapter } from "../../../shared/configurations/bcrypt";
+
+// Add a tpe to do not depend on another layer
+type HashFunction = (password: string) => string;
 
 export class AuthDataSourceImplementation implements AuthDatasource {
+  constructor(
+    private readonly hasPassword: HashFunction = BcryptAdapter.hash
+  ) {}
+
   async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
     const { email, password } = loginUserDto;
+
     try {
       const user = await UserModel.findOne({ email });
       if (!user) throw CustomError.badRequest("Bad Credentials");
@@ -35,7 +44,7 @@ export class AuthDataSourceImplementation implements AuthDatasource {
         name: name,
         lastname: lastname,
         email: email,
-        password: password,
+        password: this.hasPassword(password),
       });
       await user.save();
       return UserMapper.userEntityFromObject(user);
